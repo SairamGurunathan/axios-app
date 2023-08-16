@@ -1,19 +1,17 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Image } from '../Assects/Img/Img';
 import './AxiosPost.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
 
 
-const AxiosPost = ({setTrigger,trigger}) => {
-    const navigate = useNavigate();
-    const notify = () => toast.success('Submitted succesfully...', {
-        position: toast.POSITION.TOP_RIGHT
-    });
+const AxiosPost = () => {
+    const {id} = useParams();
+    const navigate = useNavigate(); 
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z]+\.[a-zA-Z]{2,}$/;
     const mobileRegex = /^\d{10}$/;
@@ -26,6 +24,28 @@ const AxiosPost = ({setTrigger,trigger}) => {
         message:"",
     })
 
+    const getData = async () => {
+      try {
+        const res = await axios.get(`https://fts-backend.onrender.com/admin/testing/getUserById?id=${id}`);
+        if(res.data.response.status === "success"){
+          setNewUser({
+            name:res.data.response.user.name,
+            email:res.data.response.user.email,
+            phone_number:res.data.response.user.phone_number,
+            message:res.data.response.user.message,
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    useEffect(()=>{
+      getData();
+    },[])
+    
+    const setEdit = id ? true : false;
+
+    
     const submitNewUser = async (e) => {
         e.preventDefault();
         const errorMessage = {};
@@ -47,31 +67,51 @@ const AxiosPost = ({setTrigger,trigger}) => {
             errorMessage.message = 'Message is Required';
         }
         setErrors(errorMessage)
-        
-        if(Object.keys(errorMessage).length === 0) {
-            try {
-                await create(newUser);
-            } catch (error) {
-                console.error("Error while sending data:", error);
-            }
-        }
+              if(Object.keys(errorMessage).length === 0){
+                setEdit ? edit(newUser) : create(newUser);
 
-        notify();
-        setTimeout(() => {
-            navigate("/");
-        },5000);
+                }
+            else {
+                console.log("Error while sending data:");
+            }
+        
     }
     
-    const create = async (newUserData) => {
-        try {
-            await axios.post("https://fts-backend.onrender.com/user/newRegistration", newUserData);
-            console.log("Data sent successfully");
-            setTrigger(!trigger)
-        } catch (error) {
-            console.error("Error while sending data:", error);
-        }
+
+const edit = async (newUserData) => {
+  try {
+    const res = await axios.put(`https://fts-backend.onrender.com/admin/testing/editUserById?id=${id}`,newUserData);
+    if (res.data.response.status === "success") {
+      console.log(res.data, "res");
+      toast(res.data.response.message);
+      setTimeout(() => {
+        navigate("/");
+      }, 5000);
     }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const create = async (newUserData) => {
+  try {
+    const res = await axios.post("https://fts-backend.onrender.com/user/newRegistration", newUserData);
+    if (res.data.response.status === "success") {
+      console.log(res.data, "res");
+      toast(res.data.response.message);
+      setTimeout(() => {
+        navigate("/");
+      }, 5000);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
     
+     
   return (
     <>
     <div className='container-fluid my-4'>
@@ -83,7 +123,7 @@ const AxiosPost = ({setTrigger,trigger}) => {
         <Form className='border rounded-4 p-3 fw-bold '>
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
-        <Form.Control type="text" name='name' placeholder="Enter your Name" className='rounded-3 shadow-lg'  onChange={(event) =>
+        <Form.Control type="text" value={newUser.name} name='name' placeholder="Enter your Name" className='rounded-3 shadow-lg'  onChange={(event) =>
     setNewUser((prevUser) => ({
       ...prevUser,
       name: event.target.value
@@ -93,7 +133,7 @@ const AxiosPost = ({setTrigger,trigger}) => {
       </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label>Email address</Form.Label>
-        <Form.Control type="email" name='email' placeholder="Enter your Email" className='rounded-3 shadow-lg'
+        <Form.Control type="email" value={newUser.email} name='email' placeholder="Enter your Email" className='rounded-3 shadow-lg'
         onChange={(event) =>
             setNewUser((prevUser) => ({
               ...prevUser,
@@ -104,7 +144,7 @@ const AxiosPost = ({setTrigger,trigger}) => {
       </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label>Phone Number</Form.Label>
-        <Form.Control type="number" name='phone_number' placeholder="Enter your Phone Number" className='rounded-3 shadow-lg' maxLength={10} onChange={(event) =>
+        <Form.Control type="number" value={newUser.phone_number} name='phone_number' placeholder="Enter your Phone Number" className='rounded-3 shadow-lg' maxLength={10} onChange={(event) =>
     setNewUser((prevUser) => ({
       ...prevUser,
       phone_number: event.target.value
@@ -113,7 +153,7 @@ const AxiosPost = ({setTrigger,trigger}) => {
       </Form.Group>
       <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
         <Form.Label>Message</Form.Label>
-        <Form.Control as="textarea" name='message' rows={3} className='rounded-3 shadow-lg'
+        <Form.Control as="textarea" value={newUser.message} name='message' rows={3} className='rounded-3 shadow-lg'
         onChange={(event) =>
     setNewUser((prevUser) => ({
       ...prevUser,
@@ -121,18 +161,19 @@ const AxiosPost = ({setTrigger,trigger}) => {
     }))}/>
         {errors.message && (<p style={{ color: "red" }}>{errors.message}</p>)}
       </Form.Group>
-    <div className='d-grid 
-    text-center'>
-      <Button variant="primary" type="submit" className='btn btn-lg btn-dark text-white px-4' onClick={submitNewUser}>
+    <div className='d-flex justify-content-around align-items-center'>
+      <Button variant="primary" type="submit" className='btn btn-lg btn-success text-white px-5' onClick={()=>navigate('/')}>
+        Cancel
+      </Button>
+      <Button variant="primary" type="submit" className='btn btn-lg btn-dark text-white px-5' onClick={submitNewUser}>
         Submit
       </Button>
-      <ToastContainer/>
+      
       </div>
+      <ToastContainer/>
     </Form>
         </div>
     </div>
-
-    
     </div>
     </>
   )
