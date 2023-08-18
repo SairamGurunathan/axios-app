@@ -87,7 +87,7 @@ const AxiosPost = () => {
         toast(res.data.response.message);
         setTimeout(() => {
           navigate("/");
-        }, 1000);
+        }, 2000);
       }
     } catch (error) {
       console.log(error);
@@ -104,7 +104,7 @@ const AxiosPost = () => {
         toast(res.data.response.message);
         setTimeout(() => {
           navigate("/");
-        }, 1000);
+        }, 2000);
       }
     } catch (error) {
       console.log(error);
@@ -114,7 +114,7 @@ const AxiosPost = () => {
   const cancelButton = (e)=>{
     e.preventDefault();
     Swal.fire({
-      title: "Are you sure need to exit?",
+      title: "Are you sure need to cancel?",
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
@@ -130,18 +130,20 @@ const AxiosPost = () => {
   return (
     <>
       <div className="container-fluid my-4">
-        <h1 className="my-3 text-center text-white">New Users</h1>
+        
         <div className="row ">
           <div className="col-6">
             <img
               src={Image.signInImg}
-              className="mx-5"
+              className="m-4"
               style={{ width: "500px", height: "500px" }}
               alt="img"
             />
           </div>
           <div className="col-6">
-            <Form className="border rounded-4 p-3 fw-bold ">
+            
+            <Form className="border rounded-4 p-3 fw-bold position-relative" style={{zIndex:"99"}}>
+            <h1 className="my-3 text-center text-white">New Users</h1>
               <Form.Group className="mb-3">
                 <Form.Label>Name</Form.Label>
                 <Form.Control
@@ -149,7 +151,7 @@ const AxiosPost = () => {
                   value={newUser.name}
                   name="name"
                   placeholder="Enter your Name"
-                  className="rounded-3 shadow-lg"
+                  className="rounded-3 shadow-lg p-2"
                   onChange={(event) =>
                     setNewUser((prevUser) => ({
                       ...prevUser,
@@ -166,7 +168,7 @@ const AxiosPost = () => {
                   value={newUser.email}
                   name="email"
                   placeholder="Enter your Email"
-                  className="rounded-3 shadow-lg"
+                  className="rounded-3 shadow-lg p-2"
                   onChange={(event) =>
                     setNewUser((prevUser) => ({
                       ...prevUser,
@@ -183,7 +185,7 @@ const AxiosPost = () => {
                   value={newUser.phone_number}
                   name="phone_number"
                   placeholder="Enter your Phone Number"
-                  className="rounded-3 shadow-lg"
+                  className="rounded-3 shadow-lg p-2"
                   maxLength={10}
                   onChange={(event) =>
                     setNewUser((prevUser) => ({
@@ -218,12 +220,12 @@ const AxiosPost = () => {
                   <p style={{ color: "red" }}>{errors.message}</p>
                 )}
               </Form.Group>
-              <div className="d-flex justify-content-around align-items-center">
+              <div className="d-flex justify-content-center align-items-center gap-2">
                 
                 <Button
                   variant="primary"
                   type="submit"
-                  className="btn btn-lg btn-submit text-white px-5"
+                  className="btn btn-lg btn-submit text-white px-4"
                   onClick={submitNewUser}
                 >
                   Submit
@@ -231,7 +233,7 @@ const AxiosPost = () => {
                 <Button
                   variant="primary"
                   type="submit"
-                  className="btn btn-lg btn-cancel text-white px-5"
+                  className="btn btn-lg btn-cancel text-white px-4"
                   onClick={cancelButton}
                 >
                   Cancel
@@ -240,6 +242,14 @@ const AxiosPost = () => {
               <ToastContainer />
             </Form>
           </div>
+        </div>
+        <div  className="border rounded-circle bg-light position-absolute" style={{height:"100px",width:"100px",right:"-2%",top:"-2%"}}>
+        </div>
+        <div  className="position-absolute" style={{right:"42%",bottom:"-7%",rotate:"10deg"}}>
+          <img src={Image.graph} alt="bingo" style={{width:"200px"}}/>
+        </div>
+        <div  className="position-absolute" style={{left:"30%",top:"-5%",rotate:"10deg"}}>
+          <img src={Image.star} alt="star" style={{width:"500px"}}/>
         </div>
       </div>
     </>

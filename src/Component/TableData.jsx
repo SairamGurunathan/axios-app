@@ -13,7 +13,8 @@ import moment from "moment/moment";
 const TableData = ({ axis, setAxis }) => {
   
   const navigate = useNavigate();
-  const [totalPage, setTotalPage] = useState(0);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
 
   const handlePageClick = (data) => {
@@ -23,10 +24,12 @@ const TableData = ({ axis, setAxis }) => {
   const get_users = async (data) => {
     try {
       const res = await axios.get(
-        `https://fts-backend.onrender.com/admin/testing/getallusers?offset=${data}&limit=10`
+        `https://fts-backend.onrender.com/admin/testing/getallusers?offset=${data}&limit=5`
       );
       setAxis(res.data.response.paginationOutput.items);
       setTotalPage(res.data.response.paginationOutput.totalPages)
+      setTotalCount(res.data.response.paginationOutput.totalCount);
+      console.log(res.data.response.paginationOutput);
     } catch (error) {
       console.log(error);
     }
@@ -34,7 +37,7 @@ const TableData = ({ axis, setAxis }) => {
 
   const deleteUser = (id) => {
     Swal.fire({
-      title: "Are you sure need to exit?",
+      title: "Are you sure need to delete?",
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
@@ -63,9 +66,10 @@ const TableData = ({ axis, setAxis }) => {
   }, []);
 
   return (
-    <div className="container-fluid">
-      <h1 className="mt-5 text-info">API Data</h1>
-      <div className="d-flex float-start my-3">
+    <>
+      
+      <div className="my-4 ms-3">
+      <h1 className="text-info">API Data</h1>
         <button
           className="btn btn-outline-light border-2 border-light rounded-2 fs-5 d-flex align-items-center fw-bold gap-2"
           onClick={inputData}
@@ -74,17 +78,18 @@ const TableData = ({ axis, setAxis }) => {
           ADD
         </button>
       </div>
+    <div className="container-fluid"> 
       <div>
         <Table
-          striped="columns"
+          striped
           bordered
           hover
-          variant="secondary"
-          className=""
+          responsive
+          variant="danger"
         >
           <thead>
             <tr>
-              <th>#</th>
+              <th>S. No</th>
               <th>Name</th>
               <th>Email</th>
               <th>Phone Number</th>
@@ -97,7 +102,7 @@ const TableData = ({ axis, setAxis }) => {
           <tbody>
             {axis.map((per, index) => (
               <tr key={index}>
-                <td>{(index + 1) + ((totalPage - 1) * 10 +1)}</td>
+                <td>{(index + 1)}</td>
                 <td>{per.name}</td>
                 <td>{per.email}</td>
                 <td>{per.phone_number}</td>
@@ -152,6 +157,7 @@ const TableData = ({ axis, setAxis }) => {
         <ToastContainer />
       </div>
     </div>
+    </>
   );
 };
 
